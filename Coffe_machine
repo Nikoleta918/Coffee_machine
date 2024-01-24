@@ -1,0 +1,83 @@
+from collections import Counter
+MENU = {
+    "espresso": {
+        "ingredients": {
+            "water": 50,
+            "coffee": 18,
+        },
+        "cost": 1.5,
+    },
+    "latte": {
+        "ingredients": {
+            "water": 200,
+            "milk": 150,
+            "coffee": 24,
+        },
+        "cost": 2.5,
+    },
+    "cappuccino": {
+        "ingredients": {
+            "water": 250,
+            "milk": 100,
+            "coffee": 24,
+        },
+        "cost": 3.0,
+    }
+}
+profit=0
+resources = {
+    "water": 300,
+    "milk": 200,
+    "coffee": 100,
+}
+working=True
+#print(working)
+coffee_types=MENU.keys()
+current_resources=resources.keys()
+#print(coffee_types)
+#for i in coffee_types: access the items like a list
+    #print(i)
+while working:
+    choice=input("What would you like?")
+    if choice == "off":
+        working=False
+        break
+    elif choice == "report" :
+        print(resources)
+        print("Profit is:"+str(profit))
+    elif choice in coffee_types:
+        #print(MENU[choice])
+        result={key: resources[key] - MENU[choice]["ingredients"].get(key, 0)
+                       for key in resources.keys()}
+        #print(result)
+        for  i in result:
+            if result[i] <0:
+                print("Sorry there is not enough "+ i)
+                break
+            else:
+                print("Your coffee costs "+ str(MENU[choice]["cost"]))
+                print("Input coins please")
+                quarters=int(input("How many quarters:"))
+                dimes=int(input("How many dimes:"))
+                nickels=int(input("How many nickels:"))
+                pennies=int(input("How many pennies:"))
+                coins_inserted=0.25*quarters+0.1*dimes+0.05*nickels+0.01*pennies
+                print("coins inserted are "+ str(coins_inserted))
+                if coins_inserted>MENU[choice]["cost"]:
+                    resources=result
+                    #print(resources)
+                    profit=profit+coins_inserted
+                    #print("Money in the machine are:"+f'{profit:.2f}')
+                    change=coins_inserted-MENU[choice]["cost"]
+                    profit=profit-change
+                    print("Here is "+ f'{change:.2f}'+" dollars in change")
+                    #print("Money in the machine after change are:"+f'{profit:.2f}')
+                    print("Here is your " +str(choice)+".Enjoy!")
+                    break
+                else:
+                    print("Sorry that's not enough money.Money refunded")
+                    break
+        #print("here "+f'{working}')
+    else:
+        print("wrong coffee type")
+#print("ending "+f'{working}')
