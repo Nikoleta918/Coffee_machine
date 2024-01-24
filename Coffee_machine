@@ -1,4 +1,3 @@
-from collections import Counter
 MENU = {
     "espresso": {
         "ingredients": {
@@ -31,12 +30,8 @@ resources = {
     "coffee": 100,
 }
 working=True
-#print(working)
 coffee_types=MENU.keys()
 current_resources=resources.keys()
-#print(coffee_types)
-#for i in coffee_types: access the items like a list
-    #print(i)
 while working:
     choice=input("What would you like?")
     if choice == "off":
@@ -46,10 +41,8 @@ while working:
         print(resources)
         print("Profit is:"+str(profit))
     elif choice in coffee_types:
-        #print(MENU[choice])
         result={key: resources[key] - MENU[choice]["ingredients"].get(key, 0)
                        for key in resources.keys()}
-        #print(result)
         for  i in result:
             if result[i] <0:
                 print("Sorry there is not enough "+ i)
@@ -65,19 +58,14 @@ while working:
                 print("coins inserted are "+ str(coins_inserted))
                 if coins_inserted>MENU[choice]["cost"]:
                     resources=result
-                    #print(resources)
                     profit=profit+coins_inserted
-                    #print("Money in the machine are:"+f'{profit:.2f}')
                     change=coins_inserted-MENU[choice]["cost"]
                     profit=profit-change
                     print("Here is "+ f'{change:.2f}'+" dollars in change")
-                    #print("Money in the machine after change are:"+f'{profit:.2f}')
                     print("Here is your " +str(choice)+".Enjoy!")
                     break
                 else:
                     print("Sorry that's not enough money.Money refunded")
                     break
-        #print("here "+f'{working}')
     else:
         print("wrong coffee type")
-#print("ending "+f'{working}')
