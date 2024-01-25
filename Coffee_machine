@@ -32,13 +32,10 @@ resources = {
 }
 #variables
 working=True
-profit=0
-result = {}
 coffee_types=MENU.keys()
-
+profit=0
 #function to check if the machine has resources available to make the order
 def check_ingredients(drink):
-    global result,can_make
     can_make=False
     #list comprehension to subtract order ingredients from available ingredients
     result={key: resources[key] - MENU[drink]["ingredients"].get(key, 0) 
@@ -51,10 +48,9 @@ def check_ingredients(drink):
     if all(result[i]>0 for i in result):
         print("Your coffee costs "+ str(MENU[choice]["cost"]))
         can_make=True
-    return can_make
+    return can_make,result
 
-def check_money():
-    global result,resources,profit
+def check_money(result,profit):
     #ask money from user
     print("Input coins please")
     quarters=int(input("How many quarters:"))
@@ -67,13 +63,14 @@ def check_money():
     #if there were not enough coins->refund the money,dont subtract the resources
     if coins_inserted>MENU[choice]["cost"]:
         resources=result
-        profit=profit+coins_inserted
+        #profit=profit+coins_inserted
         change=coins_inserted-MENU[choice]["cost"]
-        profit=profit-change
+        profit+=MENU[choice]["cost"] #profit not working correctly
         print("Here is "+ f'{change:.2f}'+" dollars in change")
         print("Here is your " +str(choice)+".Enjoy!")
     else:
         print("Sorry that's not enough money.Money refunded")
+    return profit,resources
 
 while working:
     #ask type of coffee from user
@@ -88,9 +85,9 @@ while working:
         print("Profit is:"+str(profit))
     #if input was a valid coffee type->check for ingredients and ask for the correct amount of money
     elif choice in coffee_types:
-        check_ingredients(choice)
+        can_make,result=check_ingredients(choice) #!!! Unpack the tuple correctly to return both the values and not their tuple->(can_make,result)
         if can_make:
-            check_money()
+            profit,resources=check_money(result,profit)
     #if you input anything else->print an error message
     else:
         print("wrong coffee type")
