@@ -1,3 +1,4 @@
+#The menu with the available options
 MENU = {
     "espresso": {
         "ingredients": {
@@ -23,49 +24,73 @@ MENU = {
         "cost": 3.0,
     }
 }
-profit=0
+#The resources that the machine has
 resources = {
     "water": 300,
     "milk": 200,
     "coffee": 100,
 }
+#variables
 working=True
+profit=0
+result = {}
 coffee_types=MENU.keys()
-current_resources=resources.keys()
+
+#function to check if the machine has resources available to make the order
+def check_ingredients(drink):
+    global result,can_make
+    can_make=False
+    #list comprehension to subtract order ingredients from available ingredients
+    result={key: resources[key] - MENU[drink]["ingredients"].get(key, 0) 
+            for key in resources.keys()}
+    #check result->if there are enough resources,show the cost of the order
+    #->if there are not enough resources,show what is not available
+    for  i in result:
+        if result[i] <=0:
+            print("Sorry there is not enough "+ i)
+    if all(result[i]>0 for i in result):
+        print("Your coffee costs "+ str(MENU[choice]["cost"]))
+        can_make=True
+    return can_make
+
+def check_money():
+    global result,resources,profit
+    #ask money from user
+    print("Input coins please")
+    quarters=int(input("How many quarters:"))
+    dimes=int(input("How many dimes:"))
+    nickels=int(input("How many nickels:"))
+    pennies=int(input("How many pennies:"))    
+    coins_inserted=0.25*quarters+0.1*dimes+0.05*nickels+0.01*pennies
+    print("coins inserted are "+ str(coins_inserted))
+    #if enough coins were inserted->subtract the resources and calculate profit for the machine and change to give the user
+    #if there were not enough coins->refund the money,dont subtract the resources
+    if coins_inserted>MENU[choice]["cost"]:
+        resources=result
+        profit=profit+coins_inserted
+        change=coins_inserted-MENU[choice]["cost"]
+        profit=profit-change
+        print("Here is "+ f'{change:.2f}'+" dollars in change")
+        print("Here is your " +str(choice)+".Enjoy!")
+    else:
+        print("Sorry that's not enough money.Money refunded")
+
 while working:
+    #ask type of coffee from user
     choice=input("What would you like?")
+    #if input=off->terminate the programm 
     if choice == "off":
         working=False
         break
+    #if choice=report->report on remaining resources and money in the machine
     elif choice == "report" :
         print(resources)
         print("Profit is:"+str(profit))
+    #if input was a valid coffee type->check for ingredients and ask for the correct amount of money
     elif choice in coffee_types:
-        result={key: resources[key] - MENU[choice]["ingredients"].get(key, 0)
-                       for key in resources.keys()}
-        for  i in result:
-            if result[i] <0:
-                print("Sorry there is not enough "+ i)
-                break
-            else:
-                print("Your coffee costs "+ str(MENU[choice]["cost"]))
-                print("Input coins please")
-                quarters=int(input("How many quarters:"))
-                dimes=int(input("How many dimes:"))
-                nickels=int(input("How many nickels:"))
-                pennies=int(input("How many pennies:"))
-                coins_inserted=0.25*quarters+0.1*dimes+0.05*nickels+0.01*pennies
-                print("coins inserted are "+ str(coins_inserted))
-                if coins_inserted>MENU[choice]["cost"]:
-                    resources=result
-                    profit=profit+coins_inserted
-                    change=coins_inserted-MENU[choice]["cost"]
-                    profit=profit-change
-                    print("Here is "+ f'{change:.2f}'+" dollars in change")
-                    print("Here is your " +str(choice)+".Enjoy!")
-                    break
-                else:
-                    print("Sorry that's not enough money.Money refunded")
-                    break
+        check_ingredients(choice)
+        if can_make:
+            check_money()
+    #if you input anything else->print an error message
     else:
         print("wrong coffee type")
