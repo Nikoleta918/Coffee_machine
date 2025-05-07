@@ -1,4 +1,3 @@
-#The menu with the available options
 MENU = {
     "espresso": {
         "ingredients": {
@@ -24,70 +23,61 @@ MENU = {
         "cost": 3.0,
     }
 }
-#The resources that the machine has
+
 resources = {
     "water": 300,
     "milk": 200,
     "coffee": 100,
 }
-#variables
-working=True
-coffee_types=MENU.keys()
-profit=0
-#function to check if the machine has resources available to make the order
-def check_ingredients(drink):
-    can_make=False
-    #list comprehension to subtract order ingredients from available ingredients
-    result={key: resources[key] - MENU[drink]["ingredients"].get(key, 0) 
-            for key in resources.keys()}
-    #check result->if there are enough resources,show the cost of the order
-    #->if there are not enough resources,show what is not available
-    for  i in result:
-        if result[i] <=0:
-            print("Sorry there is not enough "+ i)
-    if all(result[i]>0 for i in result):
-        print("Your coffee costs "+ str(MENU[choice]["cost"]))
-        can_make=True
-    return can_make,result
 
-def check_money(result,profit):
-    #ask money from user
+working = True
+coffee_types = MENU.keys()
+profit = 0
+
+def check_ingredients(drink):
+    can_make = True
+    for item in MENU[drink]["ingredients"]:
+        if resources[item] < MENU[drink]["ingredients"][item]:
+            print("Sorry there is not enough " + item)
+            can_make = False
+    if can_make:
+        print("Your coffee costs " + str(MENU[drink]["cost"]))
+    return can_make
+
+def check_money(drink, profit):
     print("Input coins please")
-    quarters=int(input("How many quarters:"))
-    dimes=int(input("How many dimes:"))
-    nickels=int(input("How many nickels:"))
-    pennies=int(input("How many pennies:"))    
-    coins_inserted=0.25*quarters+0.1*dimes+0.05*nickels+0.01*pennies
-    print("coins inserted are "+ str(coins_inserted))
-    #if enough coins were inserted->subtract the resources and calculate profit for the machine and change to give the user
-    #if there were not enough coins->refund the money,dont subtract the resources
-    if coins_inserted>MENU[choice]["cost"]:
-        resources=result
-        #profit=profit+coins_inserted
-        change=coins_inserted-MENU[choice]["cost"]
-        profit+=MENU[choice]["cost"] #profit not working correctly
-        print("Here is "+ f'{change:.2f}'+" dollars in change")
-        print("Here is your " +str(choice)+".Enjoy!")
+    quarters = int(input("How many quarters: "))
+    dimes = int(input("How many dimes: "))
+    nickels = int(input("How many nickels: "))
+    pennies = int(input("How many pennies: "))
+    
+    coins_inserted = 0.25 * quarters + 0.1 * dimes + 0.05 * nickels + 0.01 * pennies
+    cost = MENU[drink]["cost"]
+    
+    if coins_inserted >= cost:
+        change = coins_inserted - cost
+        profit += cost
+        print("Here is $" + f'{change:.2f}' + " in change.")
+        print("Here is your " + drink + ". Enjoy!")
+        
+        # Deduct ingredients
+        for item in MENU[drink]["ingredients"]:
+            resources[item] -= MENU[drink]["ingredients"][item]
     else:
-        print("Sorry that's not enough money.Money refunded")
-    return profit,resources
+        print("Sorry that's not enough money. Money refunded.")
+    return profit
 
 while working:
-    #ask type of coffee from user
-    choice=input("What would you like?")
-    #if input=off->terminate the programm 
+    choice = input("What would you like? (espresso/latte/cappuccino): ")
     if choice == "off":
-        working=False
-        break
-    #if choice=report->report on remaining resources and money in the machine
-    elif choice == "report" :
-        print(resources)
-        print("Profit is:"+str(profit))
-    #if input was a valid coffee type->check for ingredients and ask for the correct amount of money
+        working = False
+    elif choice == "report":
+        print(f"Water: {resources['water']}ml")
+        print(f"Milk: {resources.get('milk', 0)}ml")
+        print(f"Coffee: {resources['coffee']}g")
+        print(f"Money: ${profit}")
     elif choice in coffee_types:
-        can_make,result=check_ingredients(choice) #!!! Unpack the tuple correctly to return both the values and not their tuple->(can_make,result)
-        if can_make:
-            profit,resources=check_money(result,profit)
-    #if you input anything else->print an error message
+        if check_ingredients(choice):
+            profit = check_money(choice, profit)
     else:
-        print("wrong coffee type")
+        print("Wrong coffee type")
